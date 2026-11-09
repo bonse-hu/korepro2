@@ -11,9 +11,9 @@ const stamp=(n:number)=>`${String(Math.floor(n/60)).padStart(2,'0')}:${(n%60).to
 export default function App(){
  const [data,setData]=useState<Data>(load),[mastered,setMastered]=useState<string[]>(loadMastered),[tab,setTab]=useState<'learn'|'manage'>('learn'),[current,setCurrent]=useState<Clip|null>(null),[playing,setPlaying]=useState(false),[message,setMessage]=useState('再生ボタンを押してください');
  const [title,setTitle]=useState(''),[url,setUrl]=useState(''),[video,setVideo]=useState('CR3HCCw5t60'),[start,setStart]=useState('00:00'),[end,setEnd]=useState('00:06'),[meaning,setMeaning]=useState(''),[edit,setEdit]=useState('');
- const player=useRef<any>(null),mount=useRef<HTMLDivElement>(null),previewPlayer=useRef<any>(null),previewMount=useRef<HTMLDivElement>(null),cur=useRef<Clip|null>(null),active=useRef(false),dataRef=useRef(data),poll=useRef<number|undefined>(undefined);
+ const player=useRef<any>(null),mount=useRef<HTMLDivElement>(null),previewPlayer=useRef<any>(null),previewMount=useRef<HTMLDivElement>(null),cur=useRef<Clip|null>(null),active=useRef(false),dataRef=useRef(data),masteredRef=useRef(mastered),poll=useRef<number|undefined>(undefined);
  useEffect(()=>{dataRef.current=data;localStorage.setItem(KEY,JSON.stringify(data))},[data]);
- useEffect(()=>{localStorage.setItem(MASTERED_KEY,JSON.stringify(mastered))},[mastered]);
+ useEffect(()=>{masteredRef.current=mastered;localStorage.setItem(MASTERED_KEY,JSON.stringify(mastered))},[mastered]);
  useEffect(()=>()=>{if(poll.current)window.clearInterval(poll.current)},[]);
  const videoMap=useMemo(()=>new Map(data.videos.map(v=>[v.videoId,v])),[data.videos]);
  const selectedVideo=videoMap.get(video);
