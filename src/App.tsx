@@ -201,10 +201,11 @@ export default function App() {
     const preview = previewPlayer.current;
     if (!preview || typeof preview.getCurrentTime !== 'function') {
       alert('動画プレーヤーを準備しています。少し待ってから押してください。');
-      return;
+      return null;
     }
-    const time = preview.getCurrentTime();
-    (which === 'start' ? setStart : setEnd)(stamp(time));
+    const time = stamp(preview.getCurrentTime());
+    (which === 'start' ? setStart : setEnd)(time);
+    return time;
   };
 
   const nudgePreview = (delta: number) => {
@@ -320,6 +321,13 @@ export default function App() {
     }
   };
 
+  const rewindOneSecond = () => {
+    const currentPlayer = player.current;
+    if (!currentPlayer || typeof currentPlayer.getCurrentTime !== 'function') return;
+    const currentTime = currentPlayer.getCurrentTime();
+    currentPlayer.seekTo(Math.max(current?.start ?? 0, currentTime - 1), true);
+  };
+
   const selectLearningVideo = (videoId: string) => {
     active.current = false;
     if (poll.current) window.clearInterval(poll.current);
@@ -404,10 +412,10 @@ export default function App() {
     setUrl('');
   };
 
-  const save = (event: FormEvent) => {
-    event.preventDefault();
+  const save = (event?: FormEvent, capturedEnd?: string) => {
+    event?.preventDefault();
     const startSeconds = secs(start);
-    const endSeconds = secs(end);
+    const endSeconds = secs(capturedEnd ?? end);
     if (
       !video ||
       !Number.isFinite(startSeconds) ||
@@ -519,6 +527,8 @@ export default function App() {
                 ▶ この動画のリストをランダム再生
               </button>
               <button onClick={stop} disabled={!playing}>■ 停止</button>
+              <button onClick={rewindOneSecond} disabled={!playing}>↶ 1秒戻る</button>
+              <button onClick={markMastered} disabled={!current}>覚えた</button>
             </div>
             <p className="status">{message}</p>
           </section>
@@ -603,7 +613,10 @@ export default function App() {
                 <label>
                   終了時刻
                   <input value={end} onChange={(event) => setEnd(event.target.value)} />
-                  <button type="button" onClick={() => captureTime('end')}>■ 現在位置を終了時刻にする</button>
+                  <button type="button" onClick={() => {
+                    const capturedEnd = captureTime('end');
+                    if (capturedEnd !== null) save(undefined, capturedEnd);
+                  }}>■ 現在位置を終了時刻にする</button>
                 </label>
               </div>
               <label>
