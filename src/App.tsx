@@ -208,6 +208,15 @@ export default function App() {
     return time;
   };
 
+  const playPreview = () => {
+    const preview = previewPlayer.current;
+    if (!preview || typeof preview.playVideo !== 'function') {
+      alert('動画プレーヤーを準備しています。少し待ってから押してください。');
+      return;
+    }
+    preview.playVideo();
+  };
+
   const nudgePreview = (delta: number) => {
     const preview = previewPlayer.current;
     if (
@@ -319,13 +328,6 @@ export default function App() {
         startSeconds: clip.start,
       });
     }
-  };
-
-  const rewindOneSecond = () => {
-    const currentPlayer = player.current;
-    if (!currentPlayer || typeof currentPlayer.getCurrentTime !== 'function') return;
-    const currentTime = currentPlayer.getCurrentTime();
-    currentPlayer.seekTo(Math.max(current?.start ?? 0, currentTime - 1), true);
   };
 
   const selectLearningVideo = (videoId: string) => {
@@ -527,7 +529,6 @@ export default function App() {
                 ▶ この動画のリストをランダム再生
               </button>
               <button onClick={stop} disabled={!playing}>■ 停止</button>
-              <button onClick={rewindOneSecond} disabled={!playing}>↶ 1秒戻る</button>
               <button onClick={markMastered} disabled={!current}>覚えた</button>
             </div>
             <p className="status">{message}</p>
@@ -598,8 +599,9 @@ export default function App() {
               </label>
               <div className="player"><div ref={previewMount} /></div>
               <div className="fine-controls">
-                <span>再生位置の微調整</span>
-                <button type="button" onClick={() => nudgePreview(-1)}>−1秒</button>
+                <span>動画の再生操作</span>
+                <button type="button" onClick={playPreview}>▶ 再生</button>
+                <button type="button" onClick={() => nudgePreview(-1)}>↶ 1秒戻る</button>
                 <button type="button" onClick={() => nudgePreview(-0.5)}>−0.5秒</button>
                 <button type="button" onClick={() => nudgePreview(0.5)}>＋0.5秒</button>
                 <button type="button" onClick={() => nudgePreview(1)}>＋1秒</button>
