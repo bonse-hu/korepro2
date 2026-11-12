@@ -467,7 +467,7 @@ export default function App() {
     setUrl('');
   };
 
-  const save = (event?: FormEvent, capturedEnd?: string) => {
+  const save = (event?: FormEvent, capturedEnd?: string): boolean => {
     event?.preventDefault();
     const startSeconds = secs(start);
     const endSeconds = secs(capturedEnd ?? end);
@@ -479,7 +479,7 @@ export default function App() {
       endSeconds <= startSeconds
     ) {
       alert('動画と時刻を確認してください');
-      return;
+      return false;
     }
     const clip: Clip = {
       id: edit || id(),
@@ -498,6 +498,14 @@ export default function App() {
     setMeaning('');
     setStart('00:00');
     setEnd('00:06');
+    return true;
+  };
+
+  const saveAndStartNext = () => {
+    const capturedEnd = captureTime('end');
+    if (capturedEnd !== null && save(undefined, capturedEnd)) {
+      setStart(capturedEnd);
+    }
   };
 
   const exportJson = () => {
@@ -697,6 +705,7 @@ export default function App() {
                     const capturedEnd = captureTime('end');
                     if (capturedEnd !== null) save(undefined, capturedEnd);
                   }}>■ 現在位置を終了時刻にする</button>
+                  <button type="button" onClick={saveAndStartNext}>■ セットを追加して、次の開始時刻にする</button>
                 </label>
               </div>
               <label>
