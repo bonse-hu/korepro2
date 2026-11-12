@@ -131,11 +131,48 @@ export default function App() {
   const mount = useRef<HTMLDivElement>(null);
   const previewPlayer = useRef<any>(null);
   const previewMount = useRef<HTMLDivElement>(null);
+  const editFormRef = useRef<HTMLFormElement | null>(null);
   const cur = useRef<Clip | null>(null);
   const active = useRef(false);
   const dataRef = useRef(data);
   const masteredRef = useRef(mastered);
   const poll = useRef<number | undefined>(undefined);
+
+  const stopLearningPlayer = () => {
+    active.current = false;
+    if (poll.current) window.clearInterval(poll.current);
+    poll.current = undefined;
+    if (player.current) {
+      try {
+        player.current.stopVideo?.();
+      } catch {
+        // プレイヤーがすでに破棄されている場合は無視
+      }
+      try {
+        player.current.destroy?.();
+      } catch {
+        // プレイヤーがすでに破棄されている場合は無視
+      }
+      player.current = null;
+    }
+    setPlaying(false);
+  };
+
+  const stopPreviewPlayer = () => {
+    if (previewPlayer.current) {
+      try {
+        previewPlayer.current.stopVideo?.();
+      } catch {
+        // プレイヤーがすでに破棄されている場合は無視
+      }
+      try {
+        previewPlayer.current.destroy?.();
+      } catch {
+        // プレイヤーがすでに破棄されている場合は無視
+      }
+      previewPlayer.current = null;
+    }
+  };
 
   useEffect(() => {
     dataRef.current = data;
@@ -156,9 +193,41 @@ export default function App() {
     }
   }, [data.videos, selectedVideo, video]);
 
+  useEffect(() => {
+    if (tab === 'manage') {
+      stopLearningPlayer();
+    } else {
+      stopPreviewPlayer();
+    }
+  }, [tab]);
+
   useEffect(
     () => () => {
       if (poll.current) window.clearInterval(poll.current);
+      if (player.current) {
+        try {
+          player.current.stopVideo?.();
+        } catch {
+          // プレイヤーがすでに破棄されている場合は無視
+        }
+        try {
+          player.current.destroy?.();
+        } catch {
+          // プレイヤーがすでに破棄されている場合は無視
+        }
+      }
+      if (previewPlayer.current) {
+        try {
+          previewPlayer.current.stopVideo?.();
+        } catch {
+          // プレイヤーがすでに破棄されている場合は無視
+        }
+        try {
+          previewPlayer.current.destroy?.();
+        } catch {
+          // プレイヤーがすでに破棄されている場合は無視
+        }
+      }
     },
     [],
   );
@@ -322,7 +391,7 @@ export default function App() {
     } else if (previous?.videoId === clip.videoId) {
       player.current.seekTo(clip.start, true);
       player.current.playVideo();
-    } else {
+    } else if (player.current) {
       player.current.loadVideoById({
         videoId: clip.videoId,
         startSeconds: clip.start,
@@ -452,10 +521,15 @@ export default function App() {
     const objectUrl = URL.createObjectURL(
       new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
     );
+
     anchor.href = objectUrl;
     anchor.download = 'korepro2-backup.json';
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(objectUrl);
+    anchor.remove();
+
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   };
 
   const importJson = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -477,6 +551,21 @@ export default function App() {
       alert('JSONを読み込めませんでした');
     }
     event.target.value = '';
+  };
+
+  const beginEdit = (clip: Clip) => {
+    setEdit(clip.id);
+    setVideo(clip.videoId);
+    setStart(String(clip.start));
+    setEnd(String(clip.end));
+    setMeaning(clip.meaning);
+
+    window.requestAnimationFrame(() => {
+      editFormRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
   };
 
   const learnedCount = selectedClips.filter((clip) =>
@@ -588,7 +677,7 @@ export default function App() {
             <small>2 · LISTENING SET</small>
             <h2>{edit ? 'セットを編集' : '再生セットを登録'}</h2>
             <p className="muted">タイムスタンプは選択したYouTube動画だけに紐づきます。</p>
-            <form onSubmit={save}>
+            <form ref={editFormRef} onSubmit={save}>
               <label>
                 対象動画
                 <select value={video} onChange={(event) => setVideo(event.target.value)} disabled={!data.videos.length}>
@@ -601,7 +690,7 @@ export default function App() {
               <div className="fine-controls">
                 <span>動画の再生操作</span>
                 <button type="button" onClick={playPreview}>▶ 再生</button>
-                <button type="button" onClick={() => nudgePreview(-1)}>↶ 1秒戻る</button>
+                <button type="button" onClick={() => nudgePreview(-3)}>↶ 3秒戻る</button>
                 <button type="button" onClick={() => nudgePreview(-0.5)}>−0.5秒</button>
                 <button type="button" onClick={() => nudgePreview(0.5)}>＋0.5秒</button>
                 <button type="button" onClick={() => nudgePreview(1)}>＋1秒</button>
@@ -646,13 +735,7 @@ export default function App() {
                   <b>{index + 1}. {clip.meaning || '意味未登録'}</b>
                   <small>{videoMap.get(clip.videoId)?.title} · {stamp(clip.start)}〜{stamp(clip.end)}</small>
                 </div>
-                <button onClick={() => {
-                  setEdit(clip.id);
-                  setVideo(clip.videoId);
-                  setStart(String(clip.start));
-                  setEnd(String(clip.end));
-                  setMeaning(clip.meaning);
-                }}>編集</button>
+                <button onClick={() => beginEdit(clip)}>編集</button>
                 <button onClick={() => confirm('削除しますか？') && setData((currentData) => ({
                   ...currentData,
                   segments: currentData.segments.filter((item) => item.id !== clip.id),
