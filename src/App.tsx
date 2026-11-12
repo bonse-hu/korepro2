@@ -674,10 +674,10 @@ export default function App() {
               <div className="fine-controls">
                 <span>動画の再生操作</span>
                 <button type="button" onClick={playPreview}>▶ 再生</button>
-                <button type="button" onClick={() => nudgePreview(-1)}>↶ 1秒戻る</button>
-                <button type="button" onClick={() => nudgePreview(-0.5)}>−0.5秒</button>
-                <button type="button" onClick={() => nudgePreview(0.5)}>＋0.5秒</button>
+                <button type="button" onClick={() => nudgePreview(-3)}>↶ 3秒戻る</button>
+                <button type="button" onClick={() => nudgePreview(-1)}>−1秒</button>
                 <button type="button" onClick={() => nudgePreview(1)}>＋1秒</button>
+                <button type="button" onClick={() => nudgePreview(3)}>＋3秒</button>
               </div>
               <div className="two">
                 <label>
