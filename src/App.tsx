@@ -118,6 +118,7 @@ export default function App() {
 
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [backupFilename, setBackupFilename] = useState('korepro2-backup');
   const [video, setVideo] = useState('CR3HCCw5t60');
   const [selectedVideo, setSelectedVideo] = useState(
     () => load().videos[0]?.videoId || '',
@@ -443,7 +444,7 @@ export default function App() {
       );
       masteredRef.current = updated;
       setMastered(updated);
-      setMessage('選択中の動画の「覚えた」記録をリセットしました');
+      setMessage('選択中��動画の「覚えた」記録をリセットしました');
     }
   };
 
@@ -504,9 +505,13 @@ export default function App() {
     const objectUrl = URL.createObjectURL(
       new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
     );
+    const filename = (backupFilename || 'korepro2-backup')
+      .trim()
+      .replace(/[\\/:*?"<>|]/g, '-')
+      .replace(/\.json$/i, '');
 
     anchor.href = objectUrl;
-    anchor.download = 'korepro2-backup.json';
+    anchor.download = `${filename || 'korepro2-backup'}.json`;
     anchor.style.display = 'none';
 
     document.body.appendChild(anchor);
@@ -733,10 +738,18 @@ export default function App() {
             <small>4 · BACKUP</small>
             <h2>データの引っ越し</h2>
             <p className="muted">データは端末内に保存され、自動同期は行いません。PCでJSONを書き出し、iPhone側で読み込むことで手動で同じ登録内容を使えます。</p>
+            <label>
+              保存するファイル名
+              <input
+                value={backupFilename}
+                onChange={(event) => setBackupFilename(event.target.value)}
+                placeholder="korepro2-backup"
+              />
+            </label>
             <div className="buttons">
               <button onClick={exportJson}>↓ JSONを書き出す</button>
               <label className="file">
-                ↑ JSONを読み込む
+                ↑ JSON��読み込む
                 <input type="file" accept=".json,application/json" onChange={importJson} />
               </label>
             </div>
