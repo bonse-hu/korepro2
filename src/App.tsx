@@ -41,7 +41,10 @@ const ytId = (value: string) => {
   try {
     const url = new URL(value);
     if (url.hostname.includes('youtu.be')) return url.pathname.slice(1);
-    if (url.hostname.includes('youtube.com')) return url.searchParams.get('v') || url.pathname.split('/').filter(Boolean).at(-1) || '';
+    if (url.hostname.includes('youtube.com')) {
+      const pathParts = url.pathname.split('/').filter(Boolean);
+      return url.searchParams.get('v') || pathParts[pathParts.length - 1] || '';
+    }
   } catch { /* 無効なURL */ }
   return '';
 };
