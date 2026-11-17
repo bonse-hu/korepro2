@@ -332,12 +332,14 @@ export default function App() {
             <div className="player"><div ref={mount} /></div>
             <div className="buttons"><button className="primary" disabled={playing || !selectedVideo} onClick={startPlay}>▶ この動画のリストをランダム再生</button><button onClick={stop} disabled={!playing}>■ 停止</button><button onClick={markMastered} disabled={!current}>覚えた</button></div>
             <p className="status">{message}</p>
+            <div>
+              <hr /><strong className="total">{selectedClips.length}</strong><p className="muted">この動画の登録済みセット</p><p className="muted">覚えた：{learnedCount} / {selectedClips.length}</p>
+              <button onClick={resetMastered} disabled={!selectedClips.some((clip) => mastered.includes(clip.id))}>↻ この動画の「覚えた」記録をリセット</button>
+            </div>
           </section>
           <aside className="panel">
             <small>SELECTED VIDEO LIST</small><h2>{videoMap.get(selectedVideo)?.title || '動画を選択してください'}</h2>
             {selectedClips.length ? selectedClips.map((clip, index) => <div className="row" key={clip.id}><div><b>{index + 1}. {clip.meaning || '意味未登録'}</b><small>{stamp(clip.start)}〜{stamp(clip.end)}</small></div></div>) : <p className="muted">この動画にはタイムスタンプがありません。</p>}
-            <hr /><strong className="total">{selectedClips.length}</strong><p className="muted">この動画の登録済みセット</p><p className="muted">覚えた：{learnedCount} / {selectedClips.length}</p>
-            <button onClick={resetMastered} disabled={!selectedClips.some((clip) => mastered.includes(clip.id))}>↻ この動画の「覚えた」記録をリセット</button>
           </aside>
         </main>
       ) : (
@@ -354,8 +356,8 @@ export default function App() {
               <div className="player"><div ref={previewMount} /></div>
               <div className="fine-controls"><span>動画の再生操作</span><button type="button" onClick={playPreview}>▶ 再生</button><button type="button" onClick={() => nudgePreview(-3)}>↶ 3秒戻る</button><button type="button" onClick={() => nudgePreview(-1)}>−1秒</button><button type="button" onClick={() => nudgePreview(1)}>＋1秒</button><button type="button" onClick={() => nudgePreview(3)}>＋3秒</button></div>
               <div className="two">
-                <label>開始時刻<input value={start} onChange={(event) => setStart(event.target.value)} /><button type="button" onClick={() => captureTime('start')}>▶ 現在位置を開始時刻にする</button><button type="button" onClick={() => captureTime('start', -1)}>▶ 現在位置を開始時刻にする（1秒前を記録）</button></label>
-                <label>終了時刻<input value={end} onChange={(event) => setEnd(event.target.value)} /><button type="button" onClick={() => { const capturedEnd = captureTime('end'); if (capturedEnd !== null) save(undefined, capturedEnd); }}>■ 現在位置を終了時刻にする</button><button type="button" onClick={saveAndStartNext}>■ セットを追加して、次の開始時刻にする</button></label>
+                <label>開始時刻<input value={start} onChange={(event) => setStart(event.target.value)} /><button type="button" onClick={() => captureTime('start')}>▶ 現在位置を開始時刻に設定</button></label>
+                <label>終了時刻<input value={end} onChange={(event) => setEnd(event.target.value)} /><button type="button" onClick={() => { const capturedEnd = captureTime('end'); if (capturedEnd !== null) setEnd(capturedEnd); }}>▶ 現在位置を終了時刻に設定</button></label>
               </div>
               <label>日本語の意味<input value={meaning} onChange={(event) => setMeaning(event.target.value)} placeholder="例：大丈夫" /></label>
               <button className="primary" disabled={!video}>{edit ? '変更を保存' : 'セットを追加'}</button>
@@ -368,7 +370,7 @@ export default function App() {
             {!managedClips.length && <p className="muted">この動画にはセットがありません。</p>}
           </section>
           <section className="panel">
-            <small>4 · BACKUP</small><h2>データの引っ越し</h2><p className="muted">データは端末内に保存され、自動同期は行いません。PCでJSONを書き出し、iPhone側で読み込むことで手動で同じ登録内容を使えます。</p>
+            <small>4 · BACKUP</small><h2>データの引っ越し</h2><p className="muted">データは端末内に保存され、自動同期は行いません。PCでJSONを書き出し、iPhoneで読み込むと簡単に移せます。</p>
             <label>保存するファイル名<input value={backupFilename} onChange={(event) => setBackupFilename(event.target.value)} placeholder="korepro2-backup" /></label>
             <div className="buttons"><button onClick={exportJson}>↓ JSONを書き出す</button><label className="file">↑ JSONを読み込む<input type="file" accept=".json,application/json" onChange={importJson} /></label></div>
           </section>
