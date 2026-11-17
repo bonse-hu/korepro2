@@ -250,13 +250,13 @@ export default function App() {
     }
   }, [video, tab]);
 
-  const captureTime = (which: 'start' | 'end') => {
+  const captureTime = (which: 'start' | 'end', offsetSeconds = 0) => {
     const preview = previewPlayer.current;
     if (!preview || typeof preview.getCurrentTime !== 'function') {
       alert('動画プレーヤーを準備しています。少し待ってから押してください。');
       return null;
     }
-    const time = stamp(preview.getCurrentTime());
+    const time = stamp(Math.max(0, preview.getCurrentTime() + offsetSeconds));
     (which === 'start' ? setStart : setEnd)(time);
     return time;
   };
@@ -696,6 +696,7 @@ export default function App() {
                 <label>
                   開始時刻
                   <input value={start} onChange={(event) => setStart(event.target.value)} />
+                  <button type="button" onClick={() => captureTime('start', -1)}>▶ 1秒前を開始時刻に設定</button>
                   <button type="button" onClick={() => captureTime('start')}>▶ 現在位置を開始時刻にする</button>
                 </label>
                 <label>
