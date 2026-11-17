@@ -325,7 +325,7 @@ export default function App() {
       {tab === 'learn' ? (
         <main className="learning">
           <section className="panel">
-            <small>VIDEO-SPECIFIC LISTENING</small><h2>耳で覚える、韓国語。</h2>
+            <small>VIDEO-SPECIFIC LISTENING</small><h2>動画による学習</h2>
             <p>動画を選ぶと、その動画専用のタイムスタンプリストだけを再生します。</p>
             <label>学習する動画<select value={selectedVideo} onChange={(event) => selectLearningVideo(event.target.value)} disabled={!data.videos.length}>{data.videos.map((item) => <option value={item.videoId} key={item.id}>{item.title}</option>)}</select></label>
             <p className="muted">{videoMap.get(selectedVideo)?.title || '動画が登録されていません'} · タイムスタンプ {selectedClips.length}件</p>
