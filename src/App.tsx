@@ -702,10 +702,6 @@ export default function App() {
                 <label>
                   終了時刻
                   <input value={end} onChange={(event) => setEnd(event.target.value)} />
-                  <button type="button" onClick={() => {
-                    const capturedEnd = captureTime('end');
-                    if (capturedEnd !== null) save(undefined, capturedEnd);
-                  }}>■ 現在位置を終了時刻にする</button>
                   <button type="button" onClick={saveAndStartNext}>■ セットを追加して、次の開始時刻にする</button>
                 </label>
               </div>
