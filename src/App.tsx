@@ -356,7 +356,7 @@ export default function App() {
               <div className="player"><div ref={previewMount} /></div>
               <div className="fine-controls"><span>動画の再生操作</span><button type="button" onClick={playPreview}>▶ 再生</button><button type="button" onClick={() => nudgePreview(-3)}>↶ 3秒戻る</button><button type="button" onClick={() => nudgePreview(-1)}>−1秒</button><button type="button" onClick={() => nudgePreview(1)}>＋1秒</button><button type="button" onClick={() => nudgePreview(3)}>＋3秒</button></div>
               <div className="two">
-                <label>開始時刻<input value={start} onChange={(event) => setStart(event.target.value)} /><button type="button" onClick={() => captureTime('start')}>▶ 現在位置を開始時刻に設定</button></label>
+                <label>開始時刻<input value={start} onChange={(event) => setStart(event.target.value)} /><button type="button" onClick={() => captureTime('start', -1)}>▶ 1秒前を開始時刻に設定</button><button type="button" onClick={() => captureTime('start')}>▶ 現在位置を開始時刻に設定</button></label>
                 <label>終了時刻<input value={end} onChange={(event) => setEnd(event.target.value)} /><button type="button" onClick={() => { const capturedEnd = captureTime('end'); if (capturedEnd !== null) setEnd(capturedEnd); }}>▶ 現在位置を終了時刻に設定</button></label>
               </div>
               <label>日本語の意味<input value={meaning} onChange={(event) => setMeaning(event.target.value)} placeholder="例：大丈夫" /></label>
