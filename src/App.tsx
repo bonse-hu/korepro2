@@ -618,6 +618,16 @@ export default function App() {
               <button onClick={markMastered} disabled={!current}>覚えた</button>
             </div>
             <p className="status">{message}</p>
+            <hr />
+            <strong className="total">{selectedClips.length}</strong>
+            <p className="muted">この動画の登録済みセット</p>
+            <p className="muted">覚えた：{learnedCount} / {selectedClips.length}</p>
+            <button
+              onClick={resetMastered}
+              disabled={!selectedClips.some((clip) => mastered.includes(clip.id))}
+            >
+              ↻ この動画の「覚えた」記録をリセット
+            </button>
           </section>
 
           <aside className="panel">
@@ -635,16 +645,6 @@ export default function App() {
             ) : (
               <p className="muted">この動画にはタイムスタンプがありません。</p>
             )}
-            <hr />
-            <strong className="total">{selectedClips.length}</strong>
-            <p className="muted">この動画の登録済みセット</p>
-            <p className="muted">覚えた：{learnedCount} / {selectedClips.length}</p>
-            <button
-              onClick={resetMastered}
-              disabled={!selectedClips.some((clip) => mastered.includes(clip.id))}
-            >
-              ↻ この動画の「覚えた」記録をリセット
-            </button>
           </aside>
         </main>
       ) : (
