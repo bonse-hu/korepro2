@@ -118,6 +118,8 @@ export default function App() {
 
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [editingVideoTitleId, setEditingVideoTitleId] = useState('');
+  const [editingVideoTitle, setEditingVideoTitle] = useState('');
   const [backupFilename, setBackupFilename] = useState('korepro2-backup');
   const [video, setVideo] = useState('CR3HCCw5t60');
   const [selectedVideo, setSelectedVideo] = useState(
@@ -467,6 +469,58 @@ export default function App() {
     setUrl('');
   };
 
+  const beginVideoTitleEdit = (item: Video) => {
+    setEditingVideoTitleId(item.id);
+    setEditingVideoTitle(item.title);
+  };
+
+  const saveVideoTitle = () => {
+    const nextTitle = editingVideoTitle.trim();
+    if (!nextTitle) {
+      alert('動画タイトルを入力してください');
+      return;
+    }
+    setData((currentData) => ({
+      ...currentData,
+      videos: currentData.videos.map((item) =>
+        item.id === editingVideoTitleId ? { ...item, title: nextTitle } : item,
+      ),
+    }));
+    setEditingVideoTitleId('');
+    setEditingVideoTitle('');
+  };
+
+  const deleteVideo = (item: Video) => {
+    const relatedClips = data.segments.filter(
+      (clip) => clip.videoId === item.videoId,
+    );
+    if (
+      !confirm(
+        `「${item.title}」を削除しますか？この動画に登録したセット${relatedClips.length ? `（${relatedClips.length}件）` : ''}も削除されます。`,
+      )
+    ) {
+      return;
+    }
+
+    const relatedClipIds = new Set(relatedClips.map((clip) => clip.id));
+    const updatedMastered = masteredRef.current.filter(
+      (masteredId) => !relatedClipIds.has(masteredId),
+    );
+    masteredRef.current = updatedMastered;
+    setMastered(updatedMastered);
+    setData((currentData) => ({
+      ...currentData,
+      videos: currentData.videos.filter((videoItem) => videoItem.id !== item.id),
+      segments: currentData.segments.filter(
+        (clip) => clip.videoId !== item.videoId,
+      ),
+    }));
+    if (editingVideoTitleId === item.id) {
+      setEditingVideoTitleId('');
+      setEditingVideoTitle('');
+    }
+  };
+
   const save = (event?: FormEvent, capturedEnd?: string): boolean => {
     event?.preventDefault();
     const startSeconds = secs(start);
@@ -664,9 +718,31 @@ export default function App() {
               <button className="primary">動画を追加</button>
             </form>
             {data.videos.map((item) => (
-              <p className="row" key={item.id}>
-                {item.title}{' '}<a href={item.url} target="_blank" rel="noreferrer">YouTubeで開く ↗</a>
-              </p>
+              <div className="row" key={item.id}>
+                <div>
+                  {editingVideoTitleId === item.id ? (
+                    <input
+                      aria-label={`${item.title}の動画タイトル`}
+                      value={editingVideoTitle}
+                      onChange={(event) => setEditingVideoTitle(event.target.value)}
+                    />
+                  ) : (
+                    <>{item.title}{' '}<a href={item.url} target="_blank" rel="noreferrer">YouTubeで開く ↗</a></>
+                  )}
+                </div>
+                {editingVideoTitleId === item.id ? (
+                  <>
+                    <button type="button" onClick={saveVideoTitle}>保存</button>
+                    <button type="button" onClick={() => {
+                      setEditingVideoTitleId('');
+                      setEditingVideoTitle('');
+                    }}>キャンセル</button>
+                  </>
+                ) : (
+                  <button type="button" onClick={() => beginVideoTitleEdit(item)}>タイトル編集</button>
+                )}
+                <button type="button" onClick={() => deleteVideo(item)}>動画を削除</button>
+              </div>
             ))}
           </section>
 
