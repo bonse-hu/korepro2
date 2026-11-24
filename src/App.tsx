@@ -646,7 +646,7 @@ export default function App() {
         <main className="learning">
           <section className="panel">
             <small>VIDEO-SPECIFIC LISTENING</small>
-            <h2>耳で覚える、韓国語。</h2>
+            <h2>動画学習</h2>
             <p>動画を選ぶと、その動画専用のタイムスタンプリストだけを再生します。</p>
             <label>
               学習する動画
